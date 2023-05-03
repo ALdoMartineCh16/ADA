@@ -3,6 +3,8 @@
 
 using namespace std;
 
+typedef double(*Ptr_operation)(double,double);
+
 double suma(double a, double b) {
     return a + b;
 }
@@ -23,23 +25,22 @@ double potencia(double a, double b) {
     return pow(a, b);
 }
 
-double raiz_cuadrada(double a, double b) {
-    return sqrt(a);
+double radicacion(double a, double b) {
+    return pow(a,1/b);
 }
 
 int main() {
-    double a, b;
-    char op;
-    double (*operacion)(double, double);
+    double a, b, resultado;
+    int opc;
+    Ptr_operation vector_operaciones[6] = {&suma,&resta,&multiplicacion,&division,&potencia,&radicacion};
 
-    cout << "Ingrese un número: ";
+    cout << "Ingrese dos números: ";
     cin >> a>>b;
-    operacion = &suma;
-    cout << "El resultado es: " << operacion(a, b) << endl;
-
+    //0-Addition, 1-Subtraction, 2-Multiplication, 3-Division, 4-Potencia, 5-radical
+    cout << "Opcion: ";
+    cin >> opc;
     
-    operacion = &resta;
-    cout << "El resultado es: " << operacion(a, b) << endl;
-
+    resultado = (*vector_operaciones[opc])(a,b);
+    cout<<"El resultado es: "<<resultado;
     return 0;
 }
