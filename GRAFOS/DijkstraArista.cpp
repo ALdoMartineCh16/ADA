@@ -1,76 +1,92 @@
 #include <iostream>
-#include <vector>
-#include <queue>
-#include <climits>
-
+#include <list>
+#include <limits>
 using namespace std;
 
-struct Edge {
-    int destino;
-    int peso;
 
-    Edge(int _destino, int _peso) {
-        destino = _destino;
-        peso = _peso;
-    }
+class Grafo {
+	list<pair<int, int>>* ListaAdyacencia;
+	int numVertices;	
+public:
+	Grafo(int vertices){
+		numVertices = vertices;
+		ListaAdyacencia = new list<pair<int, int>>[numVertices];
+	}
+	
+	void addEdge(int inicio, int fin, int peso) {
+		ListaAdyacencia[inicio].push_back(make_pair(fin, peso));
+		ListaAdyacencia[fin].push_back(make_pair(inicio, peso));
+	}
+	
+	void costoT(int& totalCost,int VerticeInicial) {
+		bool* visited = new bool[numVertices];
+		for (int i = 0; i < numVertices; ++i) {
+			visited[i] = false;
+		}
+		visited[VerticeInicial] = true;  
+		list<pair<int, int>> path;  
+		int currentVertex = VerticeInicial;
+		int minCost = 0;
+		
+		for (int count = 0; count < numVertices - 1; ++count) {
+			int nextVertex = -1;
+			int minWeight = std::numeric_limits<int>::max();
+			
+			for (const auto& neighbor : ListaAdyacencia[currentVertex]) {
+				int vertex = neighbor.first;
+				int weight = neighbor.second;
+				
+				if (!visited[vertex] && weight < minWeight) {
+					nextVertex = vertex;
+					minWeight = weight;
+				}
+			}
+			
+			if (nextVertex != -1) {
+				visited[nextVertex] = true;
+				path.push_back(std::make_pair(currentVertex, nextVertex));
+				minCost += minWeight;
+				currentVertex = nextVertex;
+			}
+		}
+		
+		path.push_back(std::make_pair(currentVertex, 0));
+		minCost += ListaAdyacencia[currentVertex].front().second;
+		
+		totalCost = minCost;
+		
+		for (const auto& edge : path) {
+			cout<<"(" << edge.first << "," << edge.second << ") "<<endl;
+		}
+		cout<<endl;
+		
+		cout<<"Costo: "<<totalCost<<endl;
+		
+		delete[] visited;
+	}
+	
+	~Grafo() {
+		delete[] ListaAdyacencia;
+	}
 };
 
-vector<int> dijkstra(vector<vector<Edge>>& grafo, int origen) {
-    int n = grafo.size();
-    vector<int> distancias(n, INT_MAX);
-    vector<bool> visitados(n, false);
-
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-
-    distancias[origen] = 0;
-    pq.push(make_pair(0, origen));
-
-    while (!pq.empty()) {
-        int u = pq.top().second;
-        pq.pop();
-
-        if (visitados[u]) {
-            continue;
-        }
-
-        visitados[u] = true;
-
-        for (const auto& arista : grafo[u]) {
-            int v = arista.destino;
-            int peso = arista.peso;
-
-            if (!visitados[v] && distancias[u] + peso < distancias[v]) {
-                distancias[v] = distancias[u] + peso;
-                pq.push(make_pair(distancias[v], v));
-            }
-        }
-    }
-
-    return distancias;
-}
-
 int main() {
-    int n = 6;
-    int origen = 0;
-
-    vector<vector<Edge>> grafo(n);
-
-    grafo[0].push_back(Edge(1, 2));
-    grafo[0].push_back(Edge(2, 5));
-    grafo[1].push_back(Edge(2, 1));
-    grafo[1].push_back(Edge(3, 6));
-    grafo[2].push_back(Edge(3, 3));
-    grafo[2].push_back(Edge(4, 1));
-    grafo[3].push_back(Edge(4, 2));
-    grafo[3].push_back(Edge(5, 4));
-    grafo[4].push_back(Edge(5, 6));
-
-    vector<int> distancias = dijkstra(grafo, origen);
-
-    cout << "Distancias más cortas desde el nodo " << origen << ":\n";
-    for (int i = 0; i < n; i++) {
-        cout << "Nodo " << i << ": " << distancias[i] << endl;
-    }
-
-    return 0;
+	Grafo grafo(6);
+	
+	grafo.addEdge(0, 1, 10);
+	grafo.addEdge(0, 2, 55);
+	grafo.addEdge(0, 3, 25);
+	grafo.addEdge(0, 4, 45);
+	grafo.addEdge(1, 2, 20);
+	grafo.addEdge(1, 3, 25);
+	grafo.addEdge(1, 4, 40);
+	grafo.addEdge(2, 3, 15);
+	grafo.addEdge(2, 4, 30);
+	grafo.addEdge(3, 4, 50);
+	
+	int totalCost = 0;
+	int VerticeInicial = 1;  // Cambiar el nodo de inicio aquí
+	grafo.costoT(totalCost, VerticeInicial);
+	
+	return 0;
 }
