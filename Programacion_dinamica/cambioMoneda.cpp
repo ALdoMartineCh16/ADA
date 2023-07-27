@@ -64,8 +64,8 @@ public:
 };
 
 int main() {
-    vector<int> monedas = {1, 4,6};
-    int amount = 8,n,m;
+    vector<int> monedas;
+    int amount,n,m;
     cout<<"Monto: ";cin>>amount;
     cout<<"Numero de mondenas: ";cin>>n;
     for(int i=0;i<n;i++){
